@@ -1,0 +1,16 @@
+# Object files
+*.o
+
+# Executable files
+main
+
+# CUDA-specific intermediate files
+*.ptx
+*.cubin
+
+# Temporary files
+*.tmp
+*.log
+
+# Build directories (if any)
+build/
