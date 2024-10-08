@@ -2,68 +2,50 @@
 
 ```
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+import pandas as pd
 
-def test_check_variables():
-    # Mock data_ge and expected methods
-    data_ge = MagicMock()
-    data_ge.expect_column_to_exist.return_value = {"success": True}
-    
-    # Test for business_practice use case
-    parameters_utils.features_expected = ["feature_1", "feature_2"]
-    assert check_variables(data_ge, "business_practice") == "Valid"
-    
-    # Test for missing column
-    data_ge.expect_column_to_exist.side_effect = [{"success": True}, {"success": False}]
-    assert check_variables(data_ge, "business_practice") == "Invalid"
+@patch('your_module.check_unicity_id')
+@patch('your_module.check_variables')
+@patch('your_module.check_message_type')
+@patch('your_module.check_policy_id')
+@patch('your_module.check_probabilities')
+def test_validate_data(mock_check_probabilities, mock_check_policy_id, mock_check_message_type, mock_check_variables, mock_check_unicity_id):
+    # Define expected results for each mock function
+    mock_check_unicity_id.return_value = "Valid"
+    mock_check_variables.return_value = "Valid"
+    mock_check_message_type.return_value = "Invalid"
+    mock_check_policy_id.return_value = "Valid"
+    mock_check_probabilities.return_value = "Valid"
 
-def test_check_unicity_id():
-    # Mock data_ge
+    # Mock data context and inputs
     data_ge = MagicMock()
-    data_ge.expect_column_values_to_be_unique.return_value = {"success": True}
-    
-    assert check_unicity_id(data_ge) == "Valid"
-    
-    # Test for non-unique ID
-    data_ge.expect_column_values_to_be_unique.return_value = {"success": False}
-    assert check_unicity_id(data_ge) == "Invalid"
+    proba_risk_cols = ["risk_1", "risk_2"]
+    usecase = "test_usecase"
 
-def test_check_message_type():
-    # Mock data_ge
-    data_ge = MagicMock()
-    data_ge.expect_column_values_to_be_in_set.return_value = {"success": True}
-    
-    assert check_message_type(data_ge) == "Valid"
-    
-    # Test for invalid message type
-    data_ge.expect_column_values_to_be_in_set.return_value = {"success": False}
-    assert check_message_type(data_ge) == "Invalid"
+    # Expected DataFrame output
+    expected_df = pd.DataFrame({
+        "Checkpoints": [
+            "Incidents ID unicity",
+            "Variables check",
+            "Message type check",
+            "Policy check",
+            "Probabilities between 0 and 1"
+        ],
+        "Results": ["Valid", "Valid", "Invalid", "Valid", "Valid"]
+    })
 
-def test_check_policy_id():
-    # Mock data_ge
-    data_ge = MagicMock()
-    data_ge.expect_column_values_to_be_in_set.return_value = {"success": True}
-    
-    assert check_policy_id(data_ge) == "Valid"
-    
-    # Test for invalid policy ID
-    data_ge.expect_column_values_to_be_in_set.return_value = {"success": False}
-    assert check_policy_id(data_ge) == "Invalid"
+    # Run the validate_data function
+    result_df = validate_data(data_ge, proba_risk_cols, usecase)
 
-def test_check_probabilities():
-    # Mock data_ge
-    data_ge = MagicMock()
-    data_ge.expect_column_values_to_be_between.return_value = {"success": True}
-    
-    # Test for business_practice use case
-    assert check_probabilities(data_ge, [], "business_practice") == "Valid"
-    
-    # Test for other use cases with valid columns
-    proba_risk_cols = ["col1", "col2"]
-    assert check_probabilities(data_ge, proba_risk_cols, "other") == "Valid"
-    
-    # Test for invalid probability range
-    data_ge.expect_column_values_to_be_between.side_effect = [{"success": True}, {"success": False}]
-    assert check_probabilities(data_ge, proba_risk_cols, "other") == "Invalid"
+    # Assert that the output DataFrame matches the expected DataFrame
+    pd.testing.assert_frame_equal(result_df, expected_df)
+
+    # Check that each validation function was called once with the correct arguments
+    mock_check_unicity_id.assert_called_once_with(data_ge)
+    mock_check_variables.assert_called_once_with(data_ge, usecase)
+    mock_check_message_type.assert_called_once_with(data_ge)
+    mock_check_policy_id.assert_called_once_with(data_ge)
+    mock_check_probabilities.assert_called_once_with(data_ge, proba_risk_cols, usecase)
 
 ```
