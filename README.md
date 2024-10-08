@@ -1,56 +1,31 @@
 # parallel_heusristic_search
 
-
 import pytest
 
-def test_drift_map_application():
-    # Test case for 'data drift'
-    monitoring_data_drift = {
-        "name": "dataset_1",
-        "metric": "data drift",
-        "method": "Kolmogorov-Smirnov"
-    }
-    drift_map = {}
-    result = drift_map_application(monitoring_data_drift, drift_map)
-    assert result == {"dataset_1": "Kolmogorov-Smirnov"}
-    
-    # Test case for 'feature drift'
-    monitoring_feature_drift = {
-        "name": "dataset_2",
-        "metric": "feature drift",
-        "method": "Chi-Square Test"
-    }
-    drift_map = {}
-    result = drift_map_application(monitoring_feature_drift, drift_map)
-    assert result == {"dataset_2": "Chi-Square Test"}
-    
-    # Test case for 'target drift'
-    monitoring_target_drift = {
-        "name": "dataset_3",
-        "metric": "target drift",
-        "method": "KL Divergence"
-    }
-    drift_map = {}
-    result = drift_map_application(monitoring_target_drift, drift_map)
-    assert result == {"dataset_3": "KL Divergence"}
-    
-    # Test case for 'classification performance'
-    monitoring_classification = {
-        "name": "dataset_4",
-        "metric": "classification performance",
-        "method": "F1 Score"
-    }
-    drift_map = {}
-    result = drift_map_application(monitoring_classification, drift_map)
-    assert result == {"dataset_4": "F1 Score"}
-    
-    # Test case for unknown metric
-    monitoring_unknown = {
-        "name": "dataset_5",
-        "metric": "unknown metric",
-        "method": "Unknown Method"
-    }
-    drift_map = {}
-    result = drift_map_application(monitoring_unknown, drift_map)
-    assert result == {}  # Expect the drift map to remain empty for unknown metrics
+# Mock classes for testing purposes
+class KS:
+    pass
 
+class Chisquare:
+    pass
+
+class Hellinger:
+    pass
+
+def test_algorithm_transformation():
+    # Test case for 'ks'
+    result = algorithm_transformation("ks")
+    assert isinstance(result, KS), "Expected an instance of KS for method 'ks'"
+    
+    # Test case for 'chisquare'
+    result = algorithm_transformation("chisquare")
+    assert isinstance(result, Chisquare), "Expected an instance of Chisquare for method 'chisquare'"
+    
+    # Test case for 'hellinger'
+    result = algorithm_transformation("hellinger")
+    assert isinstance(result, Hellinger), "Expected an instance of Hellinger for method 'hellinger'"
+    
+    # Test case for unknown method
+    with pytest.raises(ValueError) as excinfo:
+        algorithm_transformation("unknown")
+    assert "Unknown method" in str(excinfo.value), "Expected ValueError for unknown method"
