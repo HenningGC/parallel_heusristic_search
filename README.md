@@ -1,31 +1,44 @@
 # parallel_heusristic_search
 
 import pytest
+from unittest.mock import MagicMock
 
-# Mock classes for testing purposes
-class KS:
-    pass
+# Mock validation functions
+def check_unicity_id(data_ge):
+    return "Passed"
 
-class Chisquare:
-    pass
+def check_variables(data_ge, usecase):
+    return "Passed"
 
-class Hellinger:
-    pass
+def check_message_type(data_ge):
+    return "Failed"
 
-def test_algorithm_transformation():
-    # Test case for 'ks'
-    result = algorithm_transformation("ks")
-    assert isinstance(result, KS), "Expected an instance of KS for method 'ks'"
+def check_policy_id(data_ge):
+    return "Passed"
+
+def check_probabilities(data_ge, proba_risk_cols, usecase):
+    return "Passed"
+
+def test_validate_data():
+    # Mock Great Expectations data context
+    data_ge = MagicMock()
+    proba_risk_cols = ["risk_1", "risk_2"]
+    usecase = "test_usecase"
     
-    # Test case for 'chisquare'
-    result = algorithm_transformation("chisquare")
-    assert isinstance(result, Chisquare), "Expected an instance of Chisquare for method 'chisquare'"
+    # Expected DataFrame
+    expected_df = pd.DataFrame({
+        "Checkpoints": [
+            "Incidents ID unicity",
+            "Variables check",
+            "Message type check",
+            "Policy check",
+            "Probabilities between 0 and 1"
+        ],
+        "Results": ["Passed", "Passed", "Failed", "Passed", "Passed"]
+    })
     
-    # Test case for 'hellinger'
-    result = algorithm_transformation("hellinger")
-    assert isinstance(result, Hellinger), "Expected an instance of Hellinger for method 'hellinger'"
+    # Run the function
+    result_df = validate_data(data_ge, proba_risk_cols, usecase)
     
-    # Test case for unknown method
-    with pytest.raises(ValueError) as excinfo:
-        algorithm_transformation("unknown")
-    assert "Unknown method" in str(excinfo.value), "Expected ValueError for unknown method"
+    # Assert DataFrame equality
+    pd.testing.assert_frame_equal(result_df, expected_df)
